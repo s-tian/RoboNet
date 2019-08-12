@@ -42,3 +42,11 @@ def gan_loss(logits, labels, gan_loss_type):
 def kl_loss(mu, log_sigma_sq):
     sigma_sq = tf.exp(log_sigma_sq)
     return -0.5 * tf.reduce_mean(tf.reduce_sum(1 + log_sigma_sq - tf.square(mu) - sigma_sq, axis=-1))
+
+
+def kl_loss_general(mu, log_sigma_sq, mu2, log_sigma_sq2):
+    sigma_sq = tf.exp(log_sigma_sq)
+    sigma_sq_2 = tf.exp(log_sigma_sq2)
+    return tf.reduce_mean(tf.reduce_sum(0.5 * (log_sigma_sq2 - log_sigma_sq) +
+                                        (sigma_sq + tf.square(mu - mu2)) / (2*sigma_sq_2) - 0.5, axis=-1))
+
