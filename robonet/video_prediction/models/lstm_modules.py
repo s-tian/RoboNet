@@ -9,7 +9,7 @@ class GaussianLSTM(layers.Layer):
     def __init__(self, input_img_shape, enc_H, enc_W, output_size, hidden_size, n_layers, kernel_size):
         super().__init__()
         self.input_img_shape = input_img_shape
-        self.T, self.B, self.W, self.H, self.C = self.input_img_shape
+        self.T, self.B, self.H, self.W, self.C = self.input_img_shape
         self.output_size = output_size
         self.hidden_size = hidden_size
         self.n_layers = n_layers
@@ -42,7 +42,7 @@ class GaussianLSTM(layers.Layer):
         mu = self._mu_dense(lstm_out_flat)
         logvar = self._logvar_dense(lstm_out_flat)
 
-        sample = tf.random.normal(self.B, self.hidden_size) * tf.math.exp(0.5 * logvar) + mu
+        sample = tf.random.normal((self.B, self.output_size)) * tf.math.exp(0.5 * logvar) + mu
 
         return sample, mu, logvar
 

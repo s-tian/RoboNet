@@ -92,7 +92,7 @@ class VPredTrainable(Trainable):
         
         inputs, targets = {'actions': loaded_tensors[0]}, {}
         for k, v in zip(tensor_names[1:], loaded_tensors[1:]):
-            inputs[k], targets[k] = v[:, :-1], v
+            inputs[k], targets[k] = v[:, :], v
 
         self._data_loader = data_loader
         return inputs, targets

@@ -23,8 +23,8 @@ loader_hparams:
 
 # model_hparams used to create graph and loss function
 model_hparams:
-  model: deterministic
-  graph_type: vgg_conv
+  model: stochastic 
+  graph_type: svgg_conv
   use_flows: False
   tv_weight: 0
   float16: False

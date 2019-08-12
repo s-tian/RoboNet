@@ -180,10 +180,13 @@ class StochasticModel(BaseModel):
                 metric_summaries['state_loss'] = gen_state_loss
 
             if self._hparams.kl_weight:
-                prior_dist, posterior_dist = outputs['enc_latents']['prior'], outputs['enc_latents']['post']
-                prior_mu, prior_logvar = prior_dist['mu'], prior_dist['logvar']
-                post_mu, post_logvar = posterior_dist['mu'], posterior_dist['logvar']
-                kl_loss = losses.kl_loss_general(post_mu, post_logvar, prior_mu, prior_logvar)
+                kl_loss = 0
+                latent_dists = outputs['enc_latents']
+                for step in latent_dists:
+                    prior_dist, posterior_dist = step['prior'], step['post']
+                    prior_mu, prior_logvar = prior_dist['mu'], prior_dist['logvar']
+                    post_mu, post_logvar = posterior_dist['mu'], posterior_dist['logvar']
+                    kl_loss += losses.kl_loss_general(post_mu, post_logvar, prior_mu, prior_logvar)
                 gen_losses["kl_loss"] = (kl_loss, self._hparams.kl_weight)
 
             if self._hparams.tv_weight:

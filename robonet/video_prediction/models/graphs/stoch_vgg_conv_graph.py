@@ -30,6 +30,7 @@ class SVG_VGGConvGraph(BaseGraph):
         with tf.variable_scope(self._scope_name) as graph_scope:
             self._init_layers(hparams, inputs, mode)
             T, B, H, W, C = inputs['images'].get_shape().as_list()
+            import pdb; pdb.set_trace()
 
             enc_lstm_state, dec_lstm_state = None, None
             previous_encs = []
@@ -79,11 +80,11 @@ class SVG_VGGConvGraph(BaseGraph):
 
                 # put encoded images through inference model and learned prior LSTMs
                 if t == 0:
-                    self.posterior_lstm.init_hidden()
-                    self.learned_prior_lstm.init_hidden()
-                z_post, mu_post, logvar_post = self.posterior_lstm(encoded_gt)
-                z_prior, mu_prior, logvar_prior = self.learned_prior_lstm(encoded_imgs)
-
+                    self.posterior_lstm.init_hidden(encoded_imgs[:, None])
+                    self.learned_prior_lstm.init_hidden(encoded_imgs[:, None])
+                z_post, mu_post, logvar_post = self.posterior_lstm(encoded_imgs)
+                    z_prior, mu_prior, logvar_prior = self.learned_prior_lstm(encoded_imgs)
+                
                 previous_latents.append({
                     'prior': {
                         'mu': mu_prior,
@@ -98,7 +99,7 @@ class SVG_VGGConvGraph(BaseGraph):
                 # append z_t to hidden state
                 enc_append_z = tf.reshape(self._enc_append_z(z_post), (B, int(H // 8), int(W // 8),
                                                                        hparams.z_append_channels))
-                encoded_imgs = self._enc_conv(tf.concat((encoded_imgs, enc_append_z), -1))
+                encoded_imgs = self._enc_conv2(tf.concat((encoded_imgs, enc_append_z), -1))
                 encoded_imgs = tf.contrib.layers.instance_norm(_cast_up(encoded_imgs), activation_fn=tf.nn.relu,
                                                                scope='norm{}'.format(norm_ctr), reuse=t > 0)
                 norm_ctr += 1
@@ -196,6 +197,7 @@ class SVG_VGGConvGraph(BaseGraph):
         self._enc_append = layers.Dense(enc_H * enc_W * hparams.action_append_channels)
         self._enc_append_z = layers.Dense(enc_H * enc_W * hparams.z_append_channels)
         self._enc_conv = layers.Conv2D(hparams.lstm_filters, 1, padding='same')
+        self._enc_conv2 = layers.Conv2D(hparams.lstm_filters, 1, padding='same')
 
         self._enc_lstm = layers.ConvLSTM2D(hparams.lstm_filters, hparams.kernel_size, padding = 'same')
         self._enc_lstm.cell.build([B, T, enc_H, enc_W, hparams.lstm_filters])
@@ -274,7 +276,7 @@ class SVG_VGGConvGraph(BaseGraph):
             'z_append_channels': 2,
             'latent_dim': 8,
             'glstm_hidden_size': 32,
-            'glstm_n_layers': 1,
+            'glstm_nlayers': 1,
             'glstm_kernel_size': 3,
 
             "use_flows": True,
