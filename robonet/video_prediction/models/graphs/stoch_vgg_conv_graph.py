@@ -30,7 +30,6 @@ class SVG_VGGConvGraph(BaseGraph):
         with tf.variable_scope(self._scope_name) as graph_scope:
             self._init_layers(hparams, inputs, mode)
             T, B, H, W, C = inputs['images'].get_shape().as_list()
-            import pdb; pdb.set_trace()
 
             enc_lstm_state, dec_lstm_state = None, None
             previous_encs = []
@@ -83,7 +82,7 @@ class SVG_VGGConvGraph(BaseGraph):
                     self.posterior_lstm.init_hidden(encoded_imgs[:, None])
                     self.learned_prior_lstm.init_hidden(encoded_imgs[:, None])
                 z_post, mu_post, logvar_post = self.posterior_lstm(encoded_imgs)
-                    z_prior, mu_prior, logvar_prior = self.learned_prior_lstm(encoded_imgs)
+                z_prior, mu_prior, logvar_prior = self.learned_prior_lstm(encoded_imgs)
                 
                 previous_latents.append({
                     'prior': {
