@@ -1,5 +1,6 @@
 import argparse
-from robonet import get_trainable, GIFLogger
+from robonet import get_trainable
+from robonet.video_prediction.training.ray_util.gif_logger import GIFLogger
 import tensorflow as tf
 import ray
 import ray.tune as tune

@@ -17,5 +17,8 @@ def get_dataset_class(name):
     elif name == 'TPU' or name == 'TFRecords':
         from .record_dataset import TFRecordVideoDataset
         return TFRecordVideoDataset
+    elif name == 'NumericHDF5Dataset':
+        from robonet.datasets.variants.hdf5_numeric_array_dataset import HDF5NumericRoboNetDataset
+        return HDF5NumericRoboNetDataset
     else:
         raise NotImplementedError

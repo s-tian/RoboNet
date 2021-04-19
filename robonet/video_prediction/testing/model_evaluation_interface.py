@@ -22,9 +22,11 @@ class VPredEvaluation(object):
         assert os.path.exists(config_path), 'Config path does not exist!'
 
         with open(config_path) as config:
-            params = yaml.load(config, Loader=yaml.SafeLoader)
+            # params = yaml.load(config, Loader=yaml.SafeLoader)
+            params = yaml.load(config)
             self._model_hparams = params['model']
             self._input_hparams = params['dataset']
+
 
         print('\n\n------------------------------------ LOADED PARAMS ------------------------------------')
         for k, v in self._model_hparams.items():
@@ -159,12 +161,16 @@ class VPredEvaluation(object):
     def set_session(self, sess):
         self._sess = sess
 
-    def restore(self):
+    def restore(self, gpu_mem_limit=False):
         if self._restored:
             return
 
         if self._sess is None:
-            self._sess = tf.Session()
+            if gpu_mem_limit:
+                gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.45)
+                self._sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+            else:
+                self._sess = tf.Session()
             self._sess.run(tf.global_variables_initializer())
         
         model_paths = glob.glob('{}/model*'.format(self._model_path))

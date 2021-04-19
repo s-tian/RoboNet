@@ -86,7 +86,7 @@ class VPredTrainable(Trainable):
 
         if 'sequence_length' in model_hparams and 'load_T' not in dataset_hparams:
             dataset_hparams['load_T'] = model_hparams['sequence_length']
-        
+
         return dataset_hparams, model_hparams, hparams
 
     def _get_input_targets(self, DatasetClass, metadata, dataset_hparams):
@@ -255,7 +255,10 @@ class VPredTrainable(Trainable):
         return fetches
 
     def _save(self, checkpoint_dir):
-        dataset_params = self._model.data_hparams.values()
+        if isinstance(self._model.data_hparams, dict):
+            dataset_params = self._model.data_hparams
+        else:
+            dataset_params = self._model.data_hparams.values()
         model_params = self._model.model_hparams.values()
         model_params['model'] = self._model_name
         model_params['graph_type'] = self._hparams.graph_type

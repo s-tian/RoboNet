@@ -17,4 +17,7 @@ def get_trainable(class_name):
     if class_name == 'BatchmixFinetuning':
         from .finetuning_trainable_interface import BatchmixingVPredTrainable
         return BatchmixingVPredTrainable
+    if class_name == 'NumericHDF5DatasetTrainable':
+        from robonet.video_prediction.training.numeric_hdf5_trainable_interface import HDF5TrainableInterface
+        return HDF5TrainableInterface
     raise NotImplementedError
